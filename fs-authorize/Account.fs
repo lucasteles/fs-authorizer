@@ -16,6 +16,7 @@ type Account =
 
 type CreateAccountErrors =
     | AccountAlreadyInitialized
+    | NoAccount
     | InvalidInput of Limit.Errors
 
 type GetCurrentAvailableLimit = Account -> Limit

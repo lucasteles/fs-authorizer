@@ -16,7 +16,7 @@ type TransactionAmountShouldNotExceedAvailableLimit =
     Transaction -> ActiveAccount -> Result<ActiveAccount, TransactionErrors>
 
 type AuthorizeTransactionWorkflow =
-    (Account -> unit) -> DateTime -> Account -> TransactionDto -> OutputDto
+    (Account -> unit) -> (unit -> Account option) -> DateTime ->  TransactionDto -> OutputDto
 
 let transactionAmountShouldNotExceedAvailableLimit: TransactionAmountShouldNotExceedAvailableLimit =
     fun transaction activeAccount ->
@@ -61,21 +61,29 @@ let thereShouldNoBeMoreThan2SimilarTransactionsInA2MinutesInterval: ThereShouldN
         then Error TransactionErrors.DoubledTransaction
         else Ok activeAccount
 
+
+let private adaptError account =
+                 account
+                 |> accountToDto
+                 |> printableAccountErrorResponse mapTxErrorToString
+
 let authorizeTransactionWorkflow: AuthorizeTransactionWorkflow =
-    fun updateAccount now account dto ->
+    fun updateAccount getAccount now dto ->
+        let currentAccount = getAccount ()
 
-        let parseError = accountToDto account
-                         |> (printableAccountErrorResponse mapTxErrorToString)
-        let tx = dto |> dtoToTx |> Result.mapError (TransactionErrors.InvalidMerchant >> Error)
+        let workflow tx account =
+            noTransactionShouldBeAcceptedWhenTheCardIsNotActive account
+            >>= transactionAmountShouldNotExceedAvailableLimit tx
+            >>= thereShouldNotBeMoreThan3TransactionsOnA2MinuteInterval now tx
+            >>= thereShouldNoBeMoreThan2SimilarTransactionsInA2MinutesInterval now tx
+            |> Result.map (addTransactionToAccount tx)
+            |> Result.map ActiveAccount
+            |> Result.tap updateAccount
+            |> Result.map accountToDto
+            |> Result.mapError List.singleton
+            |> Result.bimap printableAccountResponse (adaptError account)
 
-        noTransactionShouldBeAcceptedWhenTheCardIsNotActive account
-        >>= transactionAmountShouldNotExceedAvailableLimit tx
-        >>= thereShouldNotBeMoreThan3TransactionsOnA2MinuteInterval now tx
-        >>= thereShouldNoBeMoreThan2SimilarTransactionsInA2MinutesInterval now tx
-        |> Result.map (addTransactionToAccount tx)
-        |> Result.map ActiveAccount
-        |> Result.tap updateAccount
-        |> Result.map accountToDto
-        |> Result.mapError List.singleton
-        |> Result.bimap printableAccountResponse parseError
-
+        match dtoToTx dto, currentAccount with
+        | Ok tx, Some account -> workflow tx account
+        | Error e, Some account -> [TransactionErrors.InvalidTx e] |> adaptError account
+        | _, None -> [TransactionErrors.AccountNotInitialized] |> printableNoAccountResponse mapTxErrorToString

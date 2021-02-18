@@ -23,33 +23,43 @@ let parseInput json =
     try
         match desserializeJson<InputChooseParser> json with
         | { Transaction = _; Account = null } ->
-            let input = json |> desserializeJson<{| Transaction: TransactionDto |}>
+            let input =
+                json
+                |> desserializeJson<{| Transaction: TransactionDto |}>
+
             TransactionInput input.Transaction
         | { Transaction = null; Account = _ } ->
-            let input = json |> desserializeJson<{| Account: AccountDto |}>
+            let input =
+                json
+                |> desserializeJson<{| Account: AccountDto |}>
+
             AccountInput input.Account
-        | _ ->  InvalidInput
-    with
-    | _ -> InvalidInput
+        | _ -> InvalidInput
+    with _ -> InvalidInput
 
 let start () =
     let accountRepository = AccountRepository()
+
     let processAccount =
-       CreateAccount.createAccountWorkflow accountRepository.Get accountRepository.Create
+        CreateAccount.createAccountWorkflow accountRepository.Get accountRepository.Create
+
+    let processTransaction =
+        AuthorizeTransaction.authorizeTransactionWorkflow accountRepository.Update accountRepository.Get
+
+    let printCurrentState =
+        unwrapOutput >> serializeJson >> printfn "%s"
 
     let rec readLoop () =
         let parsed = parseInput (Console.ReadLine())
+
         match parsed with
-        | InvalidInput ->
-            printfn "Invalid input"
+        | InvalidInput -> printfn "Invalid input"
         | AccountInput input ->
-            processAccount input
-            |> unwrapOutput
-            |> serializeJson
-            |> printfn "%s"
+            processAccount input |> printCurrentState
             readLoop ()
         | TransactionInput input ->
-            printfn "nothing yet..."
+            processTransaction DateTime.Now input
+            |> printCurrentState
             readLoop ()
 
     readLoop ()

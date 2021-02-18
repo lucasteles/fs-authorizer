@@ -28,4 +28,5 @@ let mapTxErrorToString =
     | TransactionErrors.CardIsNotActive -> "card-not-active"
     | TransactionErrors.HighFrequencySmallInterval -> "high-frequency-small-interval"
     | TransactionErrors.DoubledTransaction -> "doubled-transaction"
-    | TransactionErrors.InvalidMerchant _ -> "invalid-merchant"
+    | TransactionErrors.InvalidTx _ -> "invalid-merchant"
+    | TransactionErrors.AccountNotInitialized _ -> "account-not-initialized"

@@ -48,9 +48,14 @@ let mapAccountErrorToString =
     function
     | CreateAccountErrors.AccountAlreadyInitialized -> "account-already-initialized"
     | CreateAccountErrors.InvalidInput _ -> "invalid-input"
+    | CreateAccountErrors.NoAccount -> "no-account"
 
 let printableAccountErrorResponse mapErrorToString  account violations =
     AuthorizeFailure {| Account = account; Violations = List.map mapErrorToString violations |}
+
+
+let printableNoAccountResponse mapErrorToString violations =
+    NoAccount {|  Violations = List.map mapErrorToString violations |}
 
 let printableAccountResponse account =
     AuthorizeSuccess {| Account = account |}

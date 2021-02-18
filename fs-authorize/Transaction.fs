@@ -11,5 +11,6 @@ type TransactionErrors =
     | CardIsNotActive
     | HighFrequencySmallInterval
     | DoubledTransaction
-    | InvalidMerchant of NonEmptyString50.Errors
+    | InvalidTx of NonEmptyString50.Errors
+    | AccountNotInitialized
 
