@@ -4,10 +4,12 @@ open System
 open System.Text.Json
 open fs_authorize.Account_dto
 open fs_authorize.Repositories
+open fs_authorize.Transaction_dto
 
 type AuthorizerInput =
     | TransactionInput of TransactionDto
     | AccountInput of AccountDto
+    | InvalidInput
 
 type InputChooseParser = { Account: obj; Transaction: obj }
 
@@ -18,30 +20,36 @@ let serializeJson thing =
     JsonSerializer.Serialize<_>(thing, JsonSerializerOptions(PropertyNamingPolicy = JsonNamingPolicy.CamelCase))
 
 let parseInput json =
-    match desserializeJson<InputChooseParser> json with
-    | { Transaction = _; Account = null } ->
-        let input = json |> desserializeJson<{| Transaction: TransactionDto |}>
-        TransactionInput input.Transaction
-    | { Transaction = null; Account = _ } ->
-        let input = json |> desserializeJson<{| Account: AccountDto |}>
-        AccountInput input.Account
-    | _ ->  failwith "Invalid input"
-
+    try
+        match desserializeJson<InputChooseParser> json with
+        | { Transaction = _; Account = null } ->
+            let input = json |> desserializeJson<{| Transaction: TransactionDto |}>
+            TransactionInput input.Transaction
+        | { Transaction = null; Account = _ } ->
+            let input = json |> desserializeJson<{| Account: AccountDto |}>
+            AccountInput input.Account
+        | _ ->  InvalidInput
+    with
+    | _ -> InvalidInput
 
 let start () =
     let accountRepository = AccountRepository()
     let processAccount =
        CreateAccount.createAccountWorkflow accountRepository.Get accountRepository.Create
 
-    while true do
+    let rec readLoop () =
         let parsed = parseInput (Console.ReadLine())
         match parsed with
+        | InvalidInput ->
+            printfn "Invalid input"
         | AccountInput input ->
             processAccount input
             |> unwrapOutput
             |> serializeJson
             |> printfn "%s"
-
+            readLoop ()
         | TransactionInput input ->
             printfn "nothing yet..."
-            ()
+            readLoop ()
+
+    readLoop ()

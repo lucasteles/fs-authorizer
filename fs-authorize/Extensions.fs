@@ -1,5 +1,8 @@
 namespace fs_authorize
 
+[<AutoOpen>]
+module Operators =
+     let (>>=) r f = Result.bind f r
 
 module Result =
      let bimap onSuccess onError xR =

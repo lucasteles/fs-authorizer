@@ -3,10 +3,6 @@ module fs_authorize.Account_dto
 open System
 open fs_authorize.SimpleTypes
 open fs_authorize.Account
-open fs_authorize.Transaction
-
-type TransactionDto = { Merchant: string; Amount: int; Time: DateTime  }
-type CreateTransaction = TransactionDto -> Transaction
 
 type AccountDto = { ActiveCard: bool
                     AvailableLimit: int }
@@ -31,19 +27,30 @@ let dtoToDomain (accountDto: AccountDto) =
     let defAccount limit =
         if accountDto.ActiveCard then
             ActiveAccount
-                { AvailableLimit = limit
+                { TotalLimit = limit
                   Transactions = [] }
         else
             InactiveAccount
-                { AvailableLimit = limit }
+                { TotalLimit = limit }
 
     limitResult |> Result.map defAccount
 
 let accountToDto account =
-    let limit = account |> getCurrentLimit |> int
+    let (Limit limit) = account |> getCurrentAvailableLimit
     let isActive =
         match account with
         | ActiveAccount _ -> true
         | InactiveAccount _ -> false
     { ActiveCard = isActive
-      AvailableLimit = limit }
+      AvailableLimit = int limit }
+
+let mapAccountErrorToString =
+    function
+    | CreateAccountErrors.AccountAlreadyInitialized -> "account-already-initialized"
+    | CreateAccountErrors.InvalidInput _ -> "invalid-input"
+
+let printableAccountErrorResponse mapErrorToString  account violations =
+    AuthorizeFailure {| Account = account; Violations = List.map mapErrorToString violations |}
+
+let printableAccountResponse account =
+    AuthorizeSuccess {| Account = account |}

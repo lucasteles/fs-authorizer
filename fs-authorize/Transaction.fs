@@ -1,4 +1,4 @@
-module fs_authorize.Transaction
+namespace fs_authorize.Transaction
 
 open System
 open fs_authorize.SimpleTypes
@@ -11,4 +11,5 @@ type TransactionErrors =
     | CardIsNotActive
     | HighFrequencySmallInterval
     | DoubledTransaction
+    | InvalidMerchant of NonEmptyString50.Errors
 

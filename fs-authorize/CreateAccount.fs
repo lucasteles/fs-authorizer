@@ -15,26 +15,14 @@ let validateAccount: ValidateAccount =
             dtoToDomain dto
             |> Result.bimap Ok (CreateAccountErrors.InvalidInput >> Error)
 
-let mapErrorToString =
-    function
-    | CreateAccountErrors.AccountAlreadyInitialized -> "account-already-initialized"
-    | CreateAccountErrors.InvalidInput _ -> "invalid-input"
-
-let printableAccountErrorResponse account violations =
-    match account with
-    | Some account ->
-        AuthorizeFailure {| Account = account; Violations = List.map mapErrorToString violations |}
-    | None ->
-        NoAccount {| Violations = ["no-account"] |}
-
-let printableAccountResponse account =
-    AuthorizeSuccess {| Account = account |}
-
 let createAccountWorkflow: CreateAccountWorkflow =
     fun getAccount createAccount dto ->
         let currentAccount = getAccount ()
+
         let parseError = Option.map accountToDto currentAccount
-                         |> printableAccountErrorResponse
+                         |> function
+                            | Some a -> printableAccountErrorResponse mapAccountErrorToString a
+                            | None -> fun _ -> NoAccount {| Violations = ["no-account"] |}
 
         validateAccount currentAccount dto
         |> Result.tap createAccount

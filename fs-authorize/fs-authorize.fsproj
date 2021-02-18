@@ -12,6 +12,7 @@
         <Compile Include="Transaction.fs" />
         <Compile Include="Account.fs" />
         <Compile Include="Account.dto.fs" />
+        <Compile Include="Transaction.dto.fs" />
         <Compile Include="CreateAccount.fs" />
         <Compile Include="AuthorizeTransaction.fs" />
         <Compile Include="AccountRepository.fs" />

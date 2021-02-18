@@ -19,7 +19,7 @@ module NonEmptyString50  =
             Error Errors.GreaterThan50Characters
         else
             str |> NonEmptyString50 |> Ok
-let (|NonEmptyString50Errors|) = NonEmptyString50.get
+let (|NonEmptyString50|) = NonEmptyString50.get
 
 module Limit  =
     type Errors = ZeroLimit
@@ -31,5 +31,6 @@ module Limit  =
             Limit v |> Ok
 
     let sum (Limit a) (Limit b) = a + b |> Limit
+    let subtract n (Limit a) = a - n |> Limit
 
 let (|Limit|) = Limit.get
