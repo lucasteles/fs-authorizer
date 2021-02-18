@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "fs-authorize", "fs-authorize\fs-authorize.fsproj", "{FB0EB8F2-6DBB-4B1A-8EDB-3BF0B708B2D6}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "fs-authorize.tests", "fs-authorize.tests\fs-authorize.tests.fsproj", "{9FF215C0-1104-4B04-9A4E-FF099B23032F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FB0EB8F2-6DBB-4B1A-8EDB-3BF0B708B2D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB0EB8F2-6DBB-4B1A-8EDB-3BF0B708B2D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB0EB8F2-6DBB-4B1A-8EDB-3BF0B708B2D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB0EB8F2-6DBB-4B1A-8EDB-3BF0B708B2D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FF215C0-1104-4B04-9A4E-FF099B23032F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FF215C0-1104-4B04-9A4E-FF099B23032F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FF215C0-1104-4B04-9A4E-FF099B23032F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FF215C0-1104-4B04-9A4E-FF099B23032F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

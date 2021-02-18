@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net5.0</TargetFramework>
+        <RootNamespace>fs_authorize</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="Extensions.fs" />
+        <Compile Include="SimpleTypes.fs" />
+        <Compile Include="Transaction.fs" />
+        <Compile Include="Account.fs" />
+        <Compile Include="Account.dto.fs" />
+        <Compile Include="CreateAccount.fs" />
+        <Compile Include="AuthorizeTransaction.fs" />
+        <Compile Include="AccountRepository.fs" />
+        <Compile Include="AuthorizerApi.fs" />
+        <Compile Include="Program.fs" />
+    </ItemGroup>
+
+</Project>
