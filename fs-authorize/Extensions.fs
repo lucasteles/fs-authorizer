@@ -2,7 +2,10 @@ namespace fs_authorize
 
 [<AutoOpen>]
 module Operators =
-     let (>>=) r f = Result.bind f r
+     let (>>=) r f =
+         match r with
+         | Ok x -> f x
+         | Error e -> Error e
 
 module Result =
      let bimap onSuccess onError xR =

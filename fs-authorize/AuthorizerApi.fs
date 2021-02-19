@@ -53,12 +53,12 @@ let start () =
         let parsed = parseInput (Console.ReadLine())
 
         match parsed with
-        | InvalidInput -> printfn "Invalid input"
+        | InvalidInput -> ()
         | AccountInput input ->
             processAccount input |> printCurrentState
             readLoop ()
         | TransactionInput input ->
-            processTransaction DateTime.Now input
+            processTransaction input
             |> printCurrentState
             readLoop ()
 

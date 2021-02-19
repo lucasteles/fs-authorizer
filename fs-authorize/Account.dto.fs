@@ -8,7 +8,7 @@ type AccountDto = { ActiveCard: bool
                     AvailableLimit: int }
 
 type OutputDto =
-    | AuthorizeSuccess of {| Account:  AccountDto |}
+    | AuthorizeSuccess of {| Account: AccountDto; Violations: string list |}
     | AuthorizeFailure of {| Account: AccountDto; Violations: string list |}
     | NoAccount of {| Violations: string list |}
 
@@ -58,4 +58,4 @@ let printableNoAccountResponse mapErrorToString violations =
     NoAccount {|  Violations = List.map mapErrorToString violations |}
 
 let printableAccountResponse account =
-    AuthorizeSuccess {| Account = account |}
+    AuthorizeSuccess {| Account = account; Violations = []|}

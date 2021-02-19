@@ -9,14 +9,14 @@ open fs_authorize.Transaction_dto
 
 type NoTransactionShouldBeAcceptedWhenTheCardIsNotActive = Account -> Result<ActiveAccount, TransactionErrors>
 type ThereShouldNotBeMoreThan3TransactionsOnA2MinuteInterval =
-    DateTime -> Transaction -> ActiveAccount -> Result<ActiveAccount, TransactionErrors>
+    DateTime -> ActiveAccount -> Result<ActiveAccount, TransactionErrors>
 type ThereShouldNoBeMoreThan2SimilarTransactionsInA2MinutesInterval =
     DateTime -> Transaction -> ActiveAccount -> Result<ActiveAccount, TransactionErrors>
 type TransactionAmountShouldNotExceedAvailableLimit =
     Transaction -> ActiveAccount -> Result<ActiveAccount, TransactionErrors>
 
 type AuthorizeTransactionWorkflow =
-    (Account -> unit) -> (unit -> Account option) -> DateTime ->  TransactionDto -> OutputDto
+    (Account -> unit) -> (unit -> Account option) ->  TransactionDto -> OutputDto
 
 let transactionAmountShouldNotExceedAvailableLimit: TransactionAmountShouldNotExceedAvailableLimit =
     fun transaction activeAccount ->
@@ -33,16 +33,16 @@ let noTransactionShouldBeAcceptedWhenTheCardIsNotActive: NoTransactionShouldBeAc
     | InactiveAccount _ -> Error TransactionErrors.CardIsNotActive
 
 let thereShouldNotBeMoreThan3TransactionsOnA2MinuteInterval: ThereShouldNotBeMoreThan3TransactionsOnA2MinuteInterval =
-    fun now transaction activeAccount ->
+    fun now activeAccount ->
         let twoMinutesEarlier = now - TimeSpan.FromMinutes(2.)
         let maxTransactionIn2Minutes = 3
 
         let txCount =
-            transaction :: activeAccount.Transactions
+            activeAccount.Transactions
             |> List.filter (fun t -> t.Time > twoMinutesEarlier)
             |> List.length
 
-        if txCount > maxTransactionIn2Minutes
+        if txCount >= maxTransactionIn2Minutes
         then Error TransactionErrors.HighFrequencySmallInterval
         else Ok activeAccount
 
@@ -51,16 +51,18 @@ let thereShouldNoBeMoreThan2SimilarTransactionsInA2MinutesInterval: ThereShouldN
         let twoMinutesEarlier = now - TimeSpan.FromMinutes(2.)
         let maxTransactionIn2Minutes = 2
 
+        let compareTx (t1: Transaction) (t2: Transaction) =
+            (t1.Merchant, t1.Amount) = (t2.Merchant, t2.Amount)
+
         let txCount =
-            transaction :: activeAccount.Transactions
+            activeAccount.Transactions
             |> List.filter (fun t -> t.Time > twoMinutesEarlier)
-            |> List.filter ((=) transaction)
+            |> List.filter (compareTx transaction)
             |> List.length
 
-        if txCount > maxTransactionIn2Minutes
+        if txCount >= maxTransactionIn2Minutes
         then Error TransactionErrors.DoubledTransaction
         else Ok activeAccount
-
 
 let private adaptError account =
                  account
@@ -68,13 +70,13 @@ let private adaptError account =
                  |> printableAccountErrorResponse mapTxErrorToString
 
 let authorizeTransactionWorkflow: AuthorizeTransactionWorkflow =
-    fun updateAccount getAccount now dto ->
+    fun updateAccount getAccount dto ->
         let currentAccount = getAccount ()
-
+        let now = dto.Time
         let workflow tx account =
             noTransactionShouldBeAcceptedWhenTheCardIsNotActive account
             >>= transactionAmountShouldNotExceedAvailableLimit tx
-            >>= thereShouldNotBeMoreThan3TransactionsOnA2MinuteInterval now tx
+            >>= thereShouldNotBeMoreThan3TransactionsOnA2MinuteInterval now
             >>= thereShouldNoBeMoreThan2SimilarTransactionsInA2MinutesInterval now tx
             |> Result.map (addTransactionToAccount tx)
             |> Result.map ActiveAccount
