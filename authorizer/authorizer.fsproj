@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <RootNamespace>authorizer</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="Rop.fs" />
+        <Compile Include="SimpleTypes.fs"/>
+        <Compile Include="Transaction.fs"/>
+        <Compile Include="Account.fs"/>
+        <Compile Include="Account.dto.fs"/>
+        <Compile Include="Transaction.dto.fs"/>
+        <Compile Include="CreateAccount.fs"/>
+        <Compile Include="CreateTransaction.fs"/>
+        <Compile Include="AuthorizeTransaction.fs"/>
+        <Compile Include="AccountRepository.fs"/>
+        <Compile Include="AuthorizerApi.fs"/>
+        <Compile Include="Program.fs"/>
+    </ItemGroup>
+
+</Project>

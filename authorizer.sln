@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "fs-authorize", "fs-authorize\fs-authorize.fsproj", "{FB0EB8F2-6DBB-4B1A-8EDB-3BF0B708B2D6}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "authorizer", "authorizer\authorizer.fsproj", "{FB0EB8F2-6DBB-4B1A-8EDB-3BF0B708B2D6}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "fs-authorize.tests", "fs-authorize.tests\fs-authorize.tests.fsproj", "{84281C13-02CD-4F5A-9620-5FAC7E7A3FA8}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "authorizer.tests", "authorizer.tests\authorizer.tests.fsproj", "{84281C13-02CD-4F5A-9620-5FAC7E7A3FA8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

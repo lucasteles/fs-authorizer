@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <RootNamespace>authorizer.tests</RootNamespace>
+        <IsTestProject>true</IsTestProject>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FsUnit" Version="4.0.4"/>
+        <PackageReference Include="NUnit" Version="3.13.1"/>
+        <PackageReference Include="NUnit3TestAdapter" Version="3.17.0"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="Helpers.fs"/>
+        <Compile Include="WorkflowTests.fs"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\authorizer\authorizer.fsproj"/>
+    </ItemGroup>
+
+</Project>
