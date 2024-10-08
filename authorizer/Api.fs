@@ -1,7 +1,6 @@
 module Authorizer.Api
 
 open System
-open System.Text.Json
 open Authorizer.Adapters
 open Authorizer.Repositories
 
@@ -12,18 +11,22 @@ type AuthorizerInput =
 
 let parseInput json =
     try
-        let raw = Json.deserialize<JsonElement> json
+        let input =
+            json
+            |> Json.deserialize<
+                {| account: AccountInfo option
+                   transaction: TransactionInfo option |}
+                >
 
-        match raw.TryGetProperty "account", raw.TryGetProperty "transaction" with
-        | (true, accountJson), (false, _) -> accountJson.Deserialize<AccountInfo>(Json.options) |> AccountInput
-        | (false, _), (true, transactionJson) ->
-            transactionJson.Deserialize<TransactionInfo>(Json.options) |> TransactionInput
+        match input.account, input.transaction with
+        | Some accountJson, None -> AccountInput accountJson
+        | None, Some transactionJson -> TransactionInput transactionJson
         | _ -> InvalidInput
 
     with _ ->
         InvalidInput
 
-let serializeAccount =
+let parseOutput =
     function
     | AuthorizeSuccess o -> box o
     | AuthorizeFailure o -> o
@@ -32,7 +35,7 @@ let serializeAccount =
 
 let start () =
     let repository = AccountRepository()
-    let printCurrentState = serializeAccount >> printfn "%s"
+    let printCurrentState = parseOutput >> printfn "%s"
 
     let rec readLoop () =
         let parsed = Console.ReadLine() |> parseInput
