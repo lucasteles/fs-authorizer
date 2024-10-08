@@ -26,10 +26,9 @@ let parseInput json =
 let serializeAccount =
     function
     | AuthorizeSuccess o -> box o
-    | AuthorizeFailure o -> box o
-    | NoAccount o -> box o
+    | AuthorizeFailure o -> o
+    | NoAccount o -> o
     >> Json.serialize
-
 
 let start () =
     let repository = AccountRepository()
