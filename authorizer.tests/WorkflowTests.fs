@@ -1,11 +1,10 @@
-module authorizer.WorkflowTests
+module Authorizer.WorkflowTests
 
-open System
 open NUnit.Framework
 open FsUnit
-open authorizer.tests.Helpers
+open Authorizer.Tests.Helpers
 
-let interact s = mockConsole AuthorizerApi.start s
+let interact s = mockConsole Api.start s
 
 [<Test>]
 let ``The transaction amount should not exceed available limit`` () =

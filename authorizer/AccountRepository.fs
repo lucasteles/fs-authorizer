@@ -1,7 +1,6 @@
-namespace authorizer.Repositories
+namespace Authorizer.Repositories
 
-open authorizer
-
+open Authorizer
 
 type AccountRepository() =
     let mutable account: Account option = None

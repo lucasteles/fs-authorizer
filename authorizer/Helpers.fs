@@ -1,4 +1,6 @@
-namespace authorizer
+namespace Authorizer
+
+open System.Text.Json
 
 module Result =
     let bimap onSuccess onError xR =
@@ -27,3 +29,13 @@ module Operators =
     let (>>=) r f = Result.bind f r
     let (<!>) = Result.map
     let (<*>) = Result.applyAggregate
+
+module Json =
+    let options =
+        JsonSerializerOptions(PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = false)
+
+    let deserialize<'a> (json: string) =
+        JsonSerializer.Deserialize<'a>(json, options)
+
+    let serialize thing =
+        JsonSerializer.Serialize<_>(thing, options)

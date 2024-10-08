@@ -2,22 +2,20 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net6.0</TargetFramework>
-        <RootNamespace>authorizer</RootNamespace>
+        <TargetFramework>net8.0</TargetFramework>
+        <RootNamespace>Authorizer</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Rop.fs" />
-        <Compile Include="SimpleTypes.fs"/>
-        <Compile Include="Transaction.fs"/>
-        <Compile Include="Account.fs"/>
-        <Compile Include="Account.dto.fs"/>
-        <Compile Include="Transaction.dto.fs"/>
+        <Compile Include="Helpers.fs" />
+        <Compile Include="ValueTypes.fs" />
+        <Compile Include="Domain.fs" />
+        <Compile Include="TransactionValidators.fs" />
+        <Compile Include="Dto.fs" />
         <Compile Include="CreateAccount.fs"/>
-        <Compile Include="CreateTransaction.fs"/>
         <Compile Include="AuthorizeTransaction.fs"/>
-        <Compile Include="AccountRepository.fs"/>
-        <Compile Include="AuthorizerApi.fs"/>
+        <Compile Include="AccountRepository.fs" />
+        <Compile Include="Api.fs" />
         <Compile Include="Program.fs"/>
     </ItemGroup>
 

@@ -1,9 +1,6 @@
-﻿open System
-open authorizer
-open authorizer.CreateAccount
-open authorizer.Repositories
+﻿open Authorizer
 
 [<EntryPoint>]
 let main _ =
-    AuthorizerApi.start ()
+    Api.start ()
     0

@@ -1,4 +1,4 @@
-module authorizer.tests.Helpers
+module Authorizer.Tests.Helpers
 
 open System
 open System.IO

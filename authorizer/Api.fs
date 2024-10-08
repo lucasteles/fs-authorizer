@@ -1,25 +1,14 @@
-module authorizer.AuthorizerApi
+module Authorizer.Api
 
 open System
 open System.Text.Json
-open authorizer.Repositories
-open authorizer.AccountDto
-open authorizer.TransactionDto
+open Authorizer.Repositories
+open Authorizer.Dto
 
 type AuthorizerInput =
     | TransactionInput of TransactionInfo
     | AccountInput of AccountInfo
     | InvalidInput
-
-module Json =
-    let options =
-        JsonSerializerOptions(PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = false)
-
-    let deserialize<'a> (json: string) =
-        JsonSerializer.Deserialize<'a>(json, options)
-
-    let serialize thing =
-        JsonSerializer.Serialize<_>(thing, options)
 
 let parseInput json =
     try

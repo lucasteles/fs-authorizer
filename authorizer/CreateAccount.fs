@@ -1,41 +1,30 @@
-module authorizer.CreateAccount
+module Authorizer.CreateAccount
 
-open authorizer
-open authorizer.AccountDto
-open authorizer.SimpleTypes
-
-type CreateAccountError =
-    | AccountAlreadyInitialized
-    | NoAccount
-    | InvalidInput of Limit.Errors
+open Authorizer
+open Authorizer.Dto
 
 type ValidateAccount = Account option -> AccountInfo -> Result<Account, CreateAccountError>
-type CreateAccountWorkflow = (unit -> Account option) -> (Account -> unit) -> AccountInfo -> AuthorizedAccount
+type CreateAccountWorkflow = (unit -> Account option) -> (Account -> unit) -> AccountInfo -> AuthorizeResult
 
 let validateAccount: ValidateAccount =
     fun currentAccount dto ->
         match currentAccount with
         | Some _ -> Error CreateAccountError.AccountAlreadyInitialized
         | None ->
-            accountToDomain dto
+            dto
+            |> AccountInfo.accountToDomain
             |> Result.bimap Ok (CreateAccountError.InvalidInput >> Error)
 
-let renderAccountError =
-    function
-    | CreateAccountError.AccountAlreadyInitialized -> "account-already-initialized"
-    | CreateAccountError.InvalidInput _ -> "invalid-input"
-    | CreateAccountError.NoAccount -> "no-account"
-
-let private adaptError maybeAccount =
+let private adaptError errorRenderFn maybeAccount =
     maybeAccount
-    |> Option.map fromAccount
+    |> Option.map AccountInfo.fromAccount
     |> function
-        | Some acc -> acc |> authorizationFailure renderAccountError
+        | Some acc -> acc |> AuthorizeResult.authorizationFailure errorRenderFn
         | None ->
             fun _ ->
                 CreateAccountError.NoAccount
                 |> List.singleton
-                |> noAccount renderAccountError
+                |> AuthorizeResult.noAccount errorRenderFn
 
 let createAccount: CreateAccountWorkflow =
     fun getAccount insertAccount dto ->
@@ -44,6 +33,6 @@ let createAccount: CreateAccountWorkflow =
         dto
         |> validateAccount currentAccount
         |> Result.tap insertAccount
-        |> Result.map fromAccount
+        |> Result.map AccountInfo.fromAccount
         |> Result.mapErrorToList
-        |> Result.bimap authorized (adaptError currentAccount)
+        |> Result.bimap AuthorizeResult.authorized (adaptError AuthorizeResult.mapAccountError currentAccount)
