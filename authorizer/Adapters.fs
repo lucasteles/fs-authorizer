@@ -1,4 +1,4 @@
-namespace Authorizer.Dto
+namespace Authorizer.Adapters
 
 open System
 open Authorizer

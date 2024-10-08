@@ -34,6 +34,11 @@ type AuthorizationError =
     | AccountNotInitialized
     | InvalidTx of CreateTransactionError
 
+type IAccountRepository =
+    abstract Get: unit -> Account option
+    abstract Create: Account -> unit
+    abstract Update: Account -> unit
+
 module Transaction =
     let create time merchantName amount =
         { Amount = amount

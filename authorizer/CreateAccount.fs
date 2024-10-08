@@ -1,10 +1,21 @@
 module Authorizer.CreateAccount
 
 open Authorizer
-open Authorizer.Dto
+open Authorizer.Adapters
 
 type ValidateAccount = Account option -> AccountInfo -> Result<Account, CreateAccountError>
-type CreateAccountWorkflow = (unit -> Account option) -> (Account -> unit) -> AccountInfo -> AuthorizeResult
+type CreateAccountWorkflow = IAccountRepository -> AccountInfo -> AuthorizeResult
+
+let private adaptError maybeAccount =
+    maybeAccount
+    |> Option.map AccountInfo.fromAccount
+    |> function
+        | Some account -> account |> AuthorizeResult.authorizationFailure AuthorizeResult.mapAccountError
+        | None ->
+            fun _ ->
+                CreateAccountError.NoAccount
+                |> List.singleton
+                |> AuthorizeResult.noAccount AuthorizeResult.mapAccountError
 
 let validateAccount: ValidateAccount =
     fun currentAccount dto ->
@@ -15,24 +26,13 @@ let validateAccount: ValidateAccount =
             |> AccountInfo.accountToDomain
             |> Result.bimap Ok (CreateAccountError.InvalidInput >> Error)
 
-let private adaptError errorRenderFn maybeAccount =
-    maybeAccount
-    |> Option.map AccountInfo.fromAccount
-    |> function
-        | Some acc -> acc |> AuthorizeResult.authorizationFailure errorRenderFn
-        | None ->
-            fun _ ->
-                CreateAccountError.NoAccount
-                |> List.singleton
-                |> AuthorizeResult.noAccount errorRenderFn
-
 let createAccount: CreateAccountWorkflow =
-    fun getAccount insertAccount dto ->
-        let currentAccount = getAccount ()
+    fun repository dto ->
+        let currentAccount = repository.Get()
 
         dto
         |> validateAccount currentAccount
-        |> Result.tap insertAccount
+        |> Result.tap repository.Create
         |> Result.map AccountInfo.fromAccount
         |> Result.mapErrorToList
-        |> Result.bimap AuthorizeResult.authorized (adaptError AuthorizeResult.mapAccountError currentAccount)
+        |> Result.bimap AuthorizeResult.authorized (adaptError currentAccount)

@@ -2,8 +2,8 @@ module Authorizer.Api
 
 open System
 open System.Text.Json
+open Authorizer.Adapters
 open Authorizer.Repositories
-open Authorizer.Dto
 
 type AuthorizerInput =
     | TransactionInput of TransactionInfo
@@ -30,27 +30,25 @@ let serializeAccount =
     | NoAccount o -> box o
     >> Json.serialize
 
+
 let start () =
-    let accountRepository = AccountRepository()
-
-    let processAccount =
-        CreateAccount.createAccount accountRepository.Get accountRepository.Create
-
-    let processTransaction =
-        AuthorizeTransaction.authorizeTransaction accountRepository.Update accountRepository.Get
-
+    let repository = AccountRepository()
     let printCurrentState = serializeAccount >> printfn "%s"
 
     let rec readLoop () =
-        let parsed = parseInput (Console.ReadLine())
+        let parsed = Console.ReadLine() |> parseInput
 
         match parsed with
         | InvalidInput -> ()
         | AccountInput input ->
-            processAccount input |> printCurrentState
+            input |> CreateAccount.createAccount repository |> printCurrentState
+
             readLoop ()
         | TransactionInput input ->
-            processTransaction input |> printCurrentState
+            input
+            |> AuthorizeTransaction.authorizeTransaction repository
+            |> printCurrentState
+
             readLoop ()
 
     readLoop ()

@@ -1,10 +1,8 @@
 module Authorizer.AuthorizeTransaction
 
-open Authorizer.Dto
+open Authorizer.Adapters
 
-type UpdateAccount = Account -> unit
-type ReadAccount = unit -> Account option
-type AuthorizeTransactionWorkflow = UpdateAccount -> ReadAccount -> TransactionInfo -> AuthorizeResult
+type AuthorizeTransactionWorkflow = IAccountRepository -> TransactionInfo -> AuthorizeResult
 
 let adaptError account =
     account
@@ -33,8 +31,8 @@ let updateAccountTx updateFn account tx =
     |> Result.bimap AuthorizeResult.authorized (adaptError account)
 
 let authorizeTransaction: AuthorizeTransactionWorkflow =
-    fun updateAccount getAccount dto ->
-        match TransactionInfo.fromDto dto, getAccount () with
+    fun repository dto ->
+        match TransactionInfo.fromDto dto, repository.Get() with
         | _, None -> accountNotInitializedResult
         | Error txErrors, Some account -> invalidTxResult account txErrors
-        | Ok tx, Some account -> updateAccountTx updateAccount account tx
+        | Ok tx, Some account -> updateAccountTx repository.Update account tx

@@ -1,6 +1,4 @@
-﻿open Authorizer
-
-[<EntryPoint>]
+﻿[<EntryPoint>]
 let main _ =
-    Api.start ()
+    Authorizer.Api.start ()
     0
